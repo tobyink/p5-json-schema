@@ -3,7 +3,7 @@ use warnings;
 
 use inc::Module::Install;
 
-my $dist = 'Example-Example';
+my $dist = 'JSON-Schema';
 my $fn   = "lib/$dist.pm"; $fn =~ s#-#/#g;
 
 name                $dist;
@@ -14,15 +14,16 @@ readme_from         $fn;
 author              'Toby Inkster <tobyink@cpan.org>';
 license             'perl';
 
-test_requires       'Test::More' => '0.61';
-
 requires            'Carp'               => '1.00';
-requires            'DateTime'           => 0;
-requires            'RDF::Trine'         => '0.112';
-requires            'XML::LibXML'        => '1.60';
-requires            'URI'                => '1.30';
+requires            'common::sense'      => 0;
+requires            'HTTP::Link::Parser' => '0.100';
+requires            'JSON'               => '2.00';
+requires            'JSON::Path'         => 0;
+requires            'LWP::UserAgent'     => 0;
+requires            'Scalar::Util'       => 0;
+test_requires       'Test::More'         => '0.61';
 
-# install_script 'fingerw';
+keywords 'JSON', 'schema', 'validate';
 
 resources(
 	'homepage'   => "http://search.cpan.org/dist/$dist/",
