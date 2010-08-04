@@ -6,37 +6,35 @@ JSON::Schema::Examples - examples of JSON::Schema
 
 =head2 Validate some JSON contact info against nested schemas.
 
- use JSON qw[from_json to_json];
- use JSON::Hyper;
+The card schema at L<http://json-schema.org/card> is tricky as it contains
+references to other schemas which need to be followed. But JSON::Schema
+handles it with ease...
+
+ use JSON qw[to_json];
  use JSON::Schema;
  use LWP::Simple qw[get];
- 
- my $card_schema = from_json(get('http://json-schema.org/card'));
- 
- # Hmmm... but this schema references a couple of other
- # schema for addresses and geographic co-ordinates. Let's
- # expand those references...
- my $hyper = JSON::Hyper->new;
- my $full_card_schema = $hyper->process_includes($card_schema);
- 
- # Now we create our JSON Schema validator:
- my $validator = JSON::Schema->new($full_card_schema);
  
  # Here's some data...
  my $contact = to_json({
    fn        => 'Toby Inkster',
    nickname  => 'TOBYINK',
    email     => { value => 'tobyink@cpan.org' },
+   adr       => { countryName => 'England', region => 'East Sussex' },
    });
-
+ 
+ # Now we create our JSON Schema validator:
+ my $card_schema = get('http://json-schema.org/card'); 
+ my $validator = JSON::Schema->new($card_schema);
+ 
  # Validate:
  my $valid = $validator->validate($contact);
  if ($valid)
  {
    print "Yay!\n";
+   exit;
  }
  
- # but it's not valid...
+ # But it's not valid...
  foreach my $e ($valid->errors)
  {
    print "Naughty! $e\n";

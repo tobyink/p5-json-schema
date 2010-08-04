@@ -28,6 +28,19 @@ my:v_0-001_00
 	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.001_00.tar.gz> ;
 	rdfs:comment    "Developer release"@en .
 
+my:v_0-001_01
+
+	a               :Version ;
+	dc:issued       "2010-08-04"^^xsd:date ;
+	:revision       "0.001_01"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.001_01.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-001_00 ;
+		dcs:item   [ rdfs:label "Support for maximumCanEqual and minimumCanEqual, which aren't included in the Javascript version."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "Support for divisibleBy."@en ; a dcs:Addition  ] ;
+		dcs:item   [ rdfs:label "JSON::Schema now calls JSON::Hyper to expand $ref references by itself. This is more efficient as they can be expanded just-in-time, as needed, rather than speculatively."@en ; rdfs:comment "This is a more efficient way of doing things."@en ; a dcs:Addition ]
+		] .
+
 #############################################################
 
 my:project
@@ -46,7 +59,7 @@ my:project
 	:tester         toby:i ;
 	:created        "2010-07-31"^^xsd:date ;
 	:license        <http://dev.perl.org/licenses/> , <http://opensource.org/licenses/mit-license.php> ;
-	:release        my:v_0-001_00 .
+	:release        my:v_0-001_00 , my:v_0-001_01 .
 
 #############################################################
 

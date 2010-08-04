@@ -6,11 +6,12 @@ use common::sense;
 use Carp;
 use HTTP::Link::Parser qw[parse_links_to_rdfjson relationship_uri];
 use JSON;
+use JSON::Hyper;
 use JSON::Schema::Error;
 use JSON::Schema::Result;
 use LWP::UserAgent;
 
-our $VERSION = '0.001_00';
+our $VERSION = '0.001_01';
 
 sub new
 {
@@ -22,25 +23,45 @@ sub new
 sub detect
 {
 	my ($class, $source) = @_;
-	my $ua = $class->ua;
 	
-	$source = $ua->get($source)
-		unless $source->isa('HTTP::Response');
+	my $hyper = JSON::Hyper->new;
+	my ($object, $url);
+	
+	if ($source->isa('HTTP::Response'))
+	{
+		$url    = $source->request->uri;
+		$object = from_json($source->decoded_content);
+	}
+	else
+	{
+		$url = "$source";
+		($source, my $frag) = split /\#/, $source, 2;
+		($object, $source) = $hyper->_get($source);
+		$object = fragment_resolve($object, $frag);
+	}
 	
 	# Link: <>; rel="describedby"
 	my $links  = parse_links_to_rdfjson($source);
 	my @schema =
-		map { $class->new( $ua->get($_->{'value'})->decoded_content ) }
+		map { $class->new( $hyper->get($_->{'value'}) ) }
 		grep { lc $_->{'type'} eq 'uri' }
-		$links->{$source->base}->{relationship_uri('describedby')};
+		$links->{$url}->{relationship_uri('describedby')};
 	
 	# ;profile=
 	push @schema,
-		map { $class->new( $ua->get($_)->decoded_content ) }
+		map { $class->new( $hyper->get($_) ) }
 		map { if (/^\'/) { s/(^\')|(\'$)//g } elsif (/^\"/) { s/(^\")|(\"$)//g } else { $_ } }
 		map { s/^profile=// }
 		grep /^profile=/,	$source->content_type;
 	
+	# $schema links
+	if ($object)
+	{
+		push @schema,
+			map { $class->new( $hyper->get($_->{'href'}) ) }
+			grep { lc $_->{'rel'} eq 'describedby' or lc $_->{'rel'} eq relationship_uri('describedby') }
+			$hyper->find_links($object);
+	}
 	return @schema;
 }
 
@@ -106,14 +127,18 @@ use common::sense;
 use constant FALSE => 0;
 use constant TRUE  => 1;
 
+use JSON::Hyper;
+use POSIX qw[modf];
 use Scalar::Util qw[blessed];
 
-our $VERSION = '0.001_00';
+our $VERSION = '0.001_01';
 
 sub new
 {
-	my ($class) = @_;
-	return bless { errors=>[] }, $class;
+	my ($class, %args) = @_;
+	$args{'hyper'}  ||= JSON::Hyper->new;
+	$args{'errors'} ||= [];
+	return bless \%args, $class;
 }
 
 sub validate
@@ -157,7 +182,7 @@ sub _validate
 	{
 		$self->checkProp($instance, $schema, '', $_changing || '', $_changing);
 	}
-	if(!$_changing and defined $instance and defined $instance->{'$schema'})
+	if(!$_changing and defined $instance and ref $instance eq 'HASH' and defined $instance->{'$schema'})
 	{
 		$self->checkProp($instance, $instance->{'$schema'}, '', '', $_changing);
 	}
@@ -167,7 +192,21 @@ sub _validate
 
 sub checkType
 {
-	my ($self, $type, $value, $path, $_changing) = @_;
+	my ($self, $type, $value, $path, $_changing, $schema) = @_;
+	
+	my @E;
+	my $addError = sub
+	{
+		my ($message) = @_;
+		my $e = { property=>$path, message=>$message };
+		foreach (qw(title description))
+		{
+			$e->{$_} = $schema->{$_}
+				if defined $schema->{$_};
+		}
+		push @E, $e;
+	};
+	
 	if ($type)
 	{
 #		if (ref $type ne 'HASH'
@@ -177,14 +216,15 @@ sub checkType
 #		and !($type eq 'integer' and $value % 1 == 0))
 		if (!$self->jsMatchType($type, $value))
 		{
-			return ({ property=>$path, message=>$self->jsGuessType($value)." value found, but a $type is required" });
+			$addError->($self->jsGuessType($value)." value found, but a $type is required");
+			return @E;
 		}
 		if (ref $type eq 'ARRAY')
 		{
 			my @unionErrors;
 			TYPE: foreach my $t (@$type)
 			{
-				@unionErrors = @{ $self->checkType($t, $value, $path, $_changing) };
+				@unionErrors = @{ $self->checkType($t, $value, $path, $_changing, $schema) };
 				last unless @unionErrors;
 			}
 			return @unionErrors if @unionErrors;
@@ -204,12 +244,18 @@ sub checkProp
 {
 	my ($self, $value, $schema, $path, $i, $_changing) = @_;
 	my $l;
-	$path .= $path ? ( ref $value eq 'ARRAY' ? "[${i}]" : ".${i}") : "\$${i}";
+	$path .= $path ? ".${i}" : "\$${i}";
 	
 	my $addError = sub
 	{
 		my ($message) = @_;
-		push @{$self->{errors}}, { property=>$path, message=>$message };
+		my $e = { property=>$path, message=>$message };
+		foreach (qw(title description))
+		{
+			$e->{$_} = $schema->{$_}
+				if defined $schema->{$_};
+		}
+		push @{$self->{errors}}, $e;
 	};
 	
 	if (ref $schema ne 'HASH' and ($path or ref $schema ne 'CODE'))
@@ -225,6 +271,9 @@ sub checkProp
 		}
 		return undef;
 	}
+	
+	$self->{'hyper'}->process_includes($schema, $self->{'base'});
+	
 	if ($_changing and $schema->{'readonly'})
 	{
 		$addError->("is a readonly field, it can not be changed");
@@ -242,7 +291,7 @@ sub checkProp
 	}
 	else
 	{
-		push @{$self->{errors}}, $self->checkType($schema->{'type'}, $value, $path, $_changing);
+		push @{$self->{errors}}, $self->checkType($schema->{'type'}, $value, $path, $_changing, $schema);
 		if (defined $schema->{'disallow'}
 		and !$self->checkType($schema->{'disallow'}, $value, $path, $_changing))
 		{
@@ -299,32 +348,70 @@ sub checkProp
 			{
 				$addError->("must be at least " . $schema->{'minLength'} . " characters long");
 			}
-			if (defined $schema->{'minimum'} and $self->jsMatchType('string', $value))
+			if (defined $schema->{'minimum'} and not $self->jsMatchType('number', $value))
 			{
-				$addError->("must have a minimum value of '" . $schema->{'minimum'}) . "'"
-					if $value lt $schema->{'minimum'};
+				if (defined $schema->{'minimumCanEqual'} and not $schema->{'minimumCanEqual'})
+				{
+					$addError->("must be greater than minimum value '" . $schema->{'minimum'}) . "'"
+						if $value lt $schema->{'minimum'};
+				}
+				else
+				{
+					$addError->("must be greater than or equal to minimum value '" . $schema->{'minimum'}) . "'"
+						if $value le $schema->{'minimum'};
+				}
 			}
 			elsif (defined $schema->{'minimum'})
 			{
-				$addError->("must have a minimum value of " . $schema->{'minimum'})
-					if $value < $schema->{'minimum'};
+				if (defined $schema->{'minimumCanEqual'} and not $schema->{'minimumCanEqual'})
+				{
+					$addError->("must be greater than minimum value " . $schema->{'minimum'})
+						unless $value > $schema->{'minimum'};
+				}
+				else
+				{
+					$addError->("must be greater than or equal to minimum value " . $schema->{'minimum'})
+						unless $value >= $schema->{'minimum'};
+				}
 			}
-			if (defined $schema->{'maximum'} and $self->jsMatchType('string', $value))
+			if (defined $schema->{'maximum'} and not $self->jsMatchType('number', $value))
 			{
-				$addError->("must have a maximum value of '" . $schema->{'maximum'}) . "'"
-					if $value lt $schema->{'maximum'};
+				if (defined $schema->{'maximumCanEqual'} and not $schema->{'maximumCanEqual'})
+				{
+					$addError->("must be less than or equal to maximum value '" . $schema->{'maximum'}) . "'"
+						if $value gt $schema->{'maximum'};
+				}
+				else
+				{
+					$addError->("must be less than or equal to maximum value '" . $schema->{'maximum'}) . "'"
+						if $value ge $schema->{'maximum'};
+				}
 			}
 			elsif (defined $schema->{'maximum'})
 			{
-				$addError->("must have a maximum value of " . $schema->{'maximum'})
-					if $value < $schema->{'maximum'};
+				if (defined $schema->{'maximumCanEqual'} and not $schema->{'maximumCanEqual'})
+				{
+					$addError->("must be less than maximum value " . $schema->{'maximum'})
+						unless $value < $schema->{'maximum'};
+				}
+				else
+				{
+					$addError->("must be less than or equal to maximum value " . $schema->{'maximum'})
+						unless $value <= $schema->{'minimum'};
+				}
 			}
 			if ($schema->{'enum'})
 			{
 				$addError->("does not have a value in the enumeration {" . (join ",", @{ $schema->{'enum'} }) . '}')
 					unless grep { $value eq $_ } @{ $schema->{'enum'} };
 			}
-			if ($schema->{'maxDecimal'})
+			if ($schema->{'divisibleBy'} and $self->jsMatchType('number', $value))
+			{
+				my ($frac,$int) = modf($value / $schema->{'divisibleBy'});
+				$addError->("must be divisible by " . $schema->{'divisibleBy'})
+					if $frac;
+			}
+			elsif ($schema->{'maxDecimal'} and $self->jsMatchType('number', $value)) # ~TOBYINK: back-compat
 			{
 				my $regexp = "\\.[0-9]{" . ($schema->{'maxDecimal'} + 1) . ",}";
 				$addError->("may only have " . $schema->{'maxDecimal'} . " digits of decimal places")
@@ -341,11 +428,20 @@ sub checkObj
 	my ($self, $instance, $objTypeDef, $path, $additionalProp, $_changing) = @_;
 	my @errors;
 	
+	my $addError = sub
+	{
+		my ($message) = @_;
+		my $e = { property=>$path, message=>$message };
+		push @{$self->{errors}}, $e;
+	};
+	
+	$self->{'hyper'}->process_includes($objTypeDef, $self->{'base'});
+	
 	if (ref $objTypeDef eq 'HASH')
 	{
 		if (ref $instance ne 'HASH')
 		{
-			push @errors, {property=>$path, message=>"an object is required"};
+			$addError->("an object is required");
 		}
 		
 		foreach my $i (keys %$objTypeDef)
@@ -365,12 +461,12 @@ sub checkObj
 		and not defined $objTypeDef->{$i}
 		and not defined $additionalProp)
 		{
-			push @errors, {property=>$path,message=>"The property $i is not defined in the schema and the schema does not allow additional properties"};
+			$addError->("The property $i is not defined in the schema and the schema does not allow additional properties");
 		}
 		my $requires = $objTypeDef && $objTypeDef->{$i} && $objTypeDef->{$i}->{'requires'};
 		if (defined $requires and not defined $instance->{$requires})
 		{
-			push @errors, {property=>$path,message=>"the presence of the property $i requires that $requires also be present"};
+			$addError->("the presence of the property $i requires that $requires also be present");
 		}
 		my $value = defined $instance->{$i} ? $instance->{$i} : exists $instance->{$i} ? JSON::Schema::Null->new : undef;
 		if (defined $objTypeDef
@@ -379,7 +475,7 @@ sub checkObj
 		{
 			$self->checkProp($value, $additionalProp, $path, $i, $_changing); 
 		}
-		if(!$_changing and defined $value and defined $value->{'$schema'})
+		if(!$_changing and defined $value and ref $value eq 'HASH' and defined $value->{'$schema'})
 		{
 			push @errors, $self->checkProp($value, $value->{'$schema'}, $path, $i, $_changing);
 		}
@@ -449,6 +545,10 @@ sub jsMatchType
 	{
 		return TRUE;
 	}
+	elsif (ref($value) and ref($value) eq $type)
+	{
+		return TRUE;
+	}
 	
 	return FALSE;
 }
@@ -489,7 +589,7 @@ use 5.008;
 use common::sense;
 use overload '""' => sub { return '' };
 
-our $VERSION = '0.001_00';
+our $VERSION = '0.001_01';
 
 sub new
 {

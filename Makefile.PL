@@ -18,6 +18,7 @@ requires            'Carp'               => '1.00';
 requires            'common::sense'      => 0;
 requires            'HTTP::Link::Parser' => '0.100';
 requires            'JSON'               => '2.00';
+requires            'JSON::Hyper'        => 0;
 requires            'JSON::Path'         => 0;
 requires            'LWP::UserAgent'     => 0;
 requires            'Scalar::Util'       => 0;

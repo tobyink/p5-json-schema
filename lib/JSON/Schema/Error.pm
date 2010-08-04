@@ -6,7 +6,7 @@ use overload '""' => \&to_string;
 
 use JSON::Path;
 
-our $VERSION = '0.001_00';
+our $VERSION = '0.001_01';
 
 sub new
 {
@@ -24,6 +24,18 @@ sub message
 {
 	my ($self) = @_;
 	return $self->{message};
+}
+
+sub title
+{
+	my ($self) = @_;
+	return $self->{title};
+}
+
+sub description
+{
+	my ($self) = @_;
+	return $self->{description};
 }
 
 sub to_string
@@ -67,6 +79,9 @@ Will print something sensible.
 
 There's also a two methods C<property> and C<message> which return the
 JSONPath to the node that caused the error, and the error message respectively.
+
+Lastly, there's methods C<title> and C<description> which return the title
+and description of the offending property, as given in the schema.
 
 =head1 SEE ALSO
 

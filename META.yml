@@ -8,7 +8,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.91'
+generated_by: 'Module::Install version 0.95'
 keywords:
   - JSON
   - schema
@@ -26,6 +26,7 @@ requires:
   Carp: 1.00
   HTTP::Link::Parser: 0.100
   JSON: 2.00
+  JSON::Hyper: 0
   JSON::Path: 0
   LWP::UserAgent: 0
   Scalar::Util: 0
@@ -36,4 +37,4 @@ resources:
   homepage: http://search.cpan.org/dist/JSON-Schema/
   license: http://dev.perl.org/licenses/
   repository: http://goddamn.co.uk/viewvc/perlmods/JSON-Schema/
-version: 0.001_00
+version: 0.001_01
