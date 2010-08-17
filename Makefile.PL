@@ -21,6 +21,7 @@ requires            'JSON'               => '2.00';
 requires            'JSON::Hyper'        => 0;
 requires            'JSON::Path'         => 0;
 requires            'LWP::UserAgent'     => 0;
+requires            'POSIX'              => 0;
 requires            'Scalar::Util'       => 0;
 test_requires       'Test::More'         => '0.61';
 
