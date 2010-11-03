@@ -503,7 +503,7 @@ sub jsMatchType
 
 	if (lc $type eq 'number')
 	{
-		return ($value =~ /^\-?[0-9]*(\.[0-9]*)?$/) ? TRUE : FALSE;
+		return ($value =~ /^\-?[0-9]*(\.[0-9]*)?$/ and length $value) ? TRUE : FALSE;
 	}
 	
 	if (lc $type eq 'integer')
@@ -513,7 +513,12 @@ sub jsMatchType
 	
 	if (lc $type eq 'boolean')
 	{
-		return (ref $value eq 'SCALAR' and $$value==0 and $$value==1) ? TRUE : FALSE;
+		return TRUE if (ref $value eq 'SCALAR' and $$value==0 || $$value==1);
+		return TRUE if ($value eq TRUE);
+		return TRUE if ($value eq FALSE);
+		return TRUE if (ref $value eq 'JSON::PP::Boolean');
+		return TRUE if (ref $value eq 'JSON::XS::Boolean');
+		return FALSE;
 	}
 
 	if (lc $type eq 'object')
