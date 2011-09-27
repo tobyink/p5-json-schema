@@ -25,9 +25,11 @@ inc/Module/Install.pm
 inc/Module/Install/ReadmeFromPod.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
-inc/Test/Signature.pm
 
 lib/JSON/Schema/Error.pm
 lib/JSON/Schema/Examples.pod
 lib/JSON/Schema.pm
 lib/JSON/Schema/Result.pm
+lib/JSON/Schema/Helper.pm
+lib/JSON/Schema/Null.pm
+

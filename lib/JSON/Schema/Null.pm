@@ -1,47 +1,21 @@
-package JSON::Schema::Error;
+package JSON::Schema::Null;
 
 use 5.008;
 use common::sense;
-use overload '""' => \&to_string;
-
-use JSON::Path;
+use overload '""' => sub { return '' };
 
 our $VERSION = '0.001_01';
 
 sub new
 {
-	my ($class, $e) = @_;
-	return bless $e, $class;
+	my ($class) = @_;
+	my $x = '';
+	return bless \$x, $class;
 }
 
-sub property
+sub TO_JSON
 {
-	my ($self) = @_;
-	return JSON::Path->new($self->{property});
-}
-
-sub message
-{
-	my ($self) = @_;
-	return $self->{message};
-}
-
-sub title
-{
-	my ($self) = @_;
-	return $self->{title};
-}
-
-sub description
-{
-	my ($self) = @_;
-	return $self->{description};
-}
-
-sub to_string
-{
-	my ($self) = @_;
-	return sprintf("%s: %s", $self->property, $self->message);
+	return undef;
 }
 
 1;
@@ -50,42 +24,11 @@ __END__
 
 =head1 NAME
 
-JSON::Schema::Error - an error that occurred when checking an instance against a schema
-
-=head1 SYNOPSIS
-
- my $validator = JSON::Schema->new($schema);
- my $json      = from_json( ... );
- my $result    = $validator->validate($json);
- 
- if ($result)
- {
-   print "Valid!\n";
- }
- else
- {
-   print "Errors\n";
-	print " - $_\n" foreach $result->errors;
- }
-
-=head1 DESCRIPTION
-
-L<JSON::Schema::Error> is returned by the L<JSON::Schema::Result> C<errors>
-method. It uses L<overload> to mimic a string. That is:
-
-  print $error;
-
-Will print something sensible.
-
-There's also a two methods C<property> and C<message> which return the
-JSONPath to the node that caused the error, and the error message respectively.
-
-Lastly, there's methods C<title> and C<description> which return the title
-and description of the offending property, as given in the schema.
+JSON::Schema::Null - represents JSON's null value
 
 =head1 SEE ALSO
 
-L<JSON::Schema>, L<JSON::Schema::Result>.
+L<JSON::Schema>.
 
 =head1 AUTHOR
 
