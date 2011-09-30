@@ -4,7 +4,7 @@ use 5.008;
 use common::sense;
 use overload '""' => sub { return '' };
 
-our $VERSION = '0.001_01';
+our $VERSION = '0.010';
 
 sub new
 {

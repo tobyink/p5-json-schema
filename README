@@ -70,7 +70,8 @@ BUGS
     Please report any bugs to <http://rt.cpan.org/>.
 
 SEE ALSO
-    JSON::Schema::Result, JSON::Schema::Error, JSON::Schema::Examples.
+    JSON::Schema::Result, JSON::Schema::Error, JSON::Schema::Helper,
+    JSON::Schema::Null, JSON::Schema::Examples.
 
     Related modules: JSON::T, JSON::Path, JSON::GRDDL, JSON::Hyper.
 
@@ -85,7 +86,7 @@ AUTHOR
 COPYRIGHT AND LICENCE
     Copyright 2007-2009 Kris Zyp.
 
-    Copyright 2010 Toby Inkster.
+    Copyright 2010-2011 Toby Inkster.
 
     This module is tri-licensed. It is available under the X11 (a.k.a. MIT)
     licence; you can also redistribute it and/or modify it under the same

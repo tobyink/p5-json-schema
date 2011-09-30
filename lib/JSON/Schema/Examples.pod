@@ -83,7 +83,7 @@ Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
 
 =head1 COPYRIGHT AND LICENCE
 
-Copyright 2010 Toby Inkster.
+Copyright 2010-2011 Toby Inkster.
 
 =head2 GNU Free Documentation Licence, Version 1.3
 

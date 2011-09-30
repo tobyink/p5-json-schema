@@ -41,6 +41,25 @@ my:v_0-001_01
 		dcs:item   [ rdfs:label "JSON::Schema now calls JSON::Hyper to expand $ref references by itself. This is more efficient as they can be expanded just-in-time, as needed, rather than speculatively."@en ; rdfs:comment "This is a more efficient way of doing things."@en ; a dcs:Addition ]
 		] .
 
+my:v_0-010
+
+	a               :Version ;
+	dc:issued       "2011-09-27"^^xsd:date ;
+	:revision       "0.010"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.010.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-001_01 ;
+		dcs:item   [ rdfs:label "Numeric maxima."@en ; a dcs:Bugfix ] ;
+		dcs:item   [ rdfs:label "Arrays. (Thanks to Naveed Massjouni.)"@en ; a dcs:Bugfix ] ;
+		dcs:item   [ rdfs:label "Improved test cases. (Thanks to Naveed Massjouni.)"@en ; a dcs:Packaging ] ;
+		dcs:item   [ rdfs:label "uniqueItems."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "patternProperties."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "additionalItems."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "required."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "exclusiveMaximum and exclusiveMinimum."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "Split JSON::Schema::Helper and JSON::Schema::Null into separate files."@en ; a dcs:Packaging ] ;
+		] .
+
 #############################################################
 
 my:project
@@ -59,7 +78,7 @@ my:project
 	:tester         toby:i ;
 	:created        "2010-07-31"^^xsd:date ;
 	:license        <http://dev.perl.org/licenses/> , <http://opensource.org/licenses/mit-license.php> ;
-	:release        my:v_0-001_00 , my:v_0-001_01 .
+	:release        my:v_0-001_00 , my:v_0-001_01 , my:v_0-010 .
 
 #############################################################
 

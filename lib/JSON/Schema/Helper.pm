@@ -16,17 +16,20 @@ package JSON::Schema::Helper;
 #"message" which indicates what the error was
 ##
 
+# TODO: {id}, {dependencies}
+
 use 5.008;
 use common::sense;
 use constant FALSE => 0;
 use constant TRUE  => 1;
 
+use JSON qw[-convert_blessed_universally];
 use JSON::Hyper;
 use JSON::Schema::Null;
 use POSIX qw[modf];
 use Scalar::Util qw[blessed];
 
-our $VERSION = '0.001_01';
+our $VERSION = '0.010';
 
 sub new
 {
@@ -181,8 +184,11 @@ sub checkProp
 	# validate a value against a type definition
 	if (!defined $value)
 	{
-		$addError->("is missing and it is not optional")
-			unless $schema->{'optional'};
+		my $required;
+		$required = !$schema->{'optional'} if exists $schema->{'optional'};
+		$required =  $schema->{'required'} if $schema->{'required'};
+		
+		$addError->("is missing and it is required") if $required;
 	}
 	else
 	{
@@ -196,13 +202,36 @@ sub checkProp
 		{
 			if (ref $value eq 'ARRAY')
 			{
-				my $items = $schema->{items};
+				my $items            = $schema->{items};
+				
 				if (ref $items eq 'ARRAY')
 				{ # check each item in $schema->{items} vs corresponding array value
-					for (my $i=0; $i < @$items; $i++)
+					my $i = 0;
+					while ($i < @$items)
 					{
-						my $x = defined $value->[$i] ? $value->[$i] : JSON::Schema::Null->new; 
+						my $x = defined $value->[$i] ? $value->[$i] : JSON::Schema::Null->new;
 						push @{$self->{errors}}, $self->checkProp($x, $items->[$i], $path, $i, $_changing);
+						$i++;
+					}
+					if (exists $schema->{additionalItems})
+					{
+						my $additional_items = $schema->{additionalItems};
+						if (!$additional_items)
+						{
+							if (defined $value->[$i])
+							{
+								$addError->("has too many items");
+							}
+						}
+						else
+						{
+							while ($i < @$value)
+							{
+								my $x = defined $value->[$i] ? $value->[$i] : JSON::Schema::Null->new;
+								push @{$self->{errors}}, $self->checkProp($x, $additional_items, $path, $i, $_changing);
+								$i++;
+							}
+						}
 					}
 				}
 				elsif (ref $items eq 'HASH')
@@ -223,10 +252,17 @@ sub checkProp
 				{
 					addError->("There must be a maximum of " . $schema->{'maxItems'} . " in the array");
 				}
+				if ($schema->{'uniqueItems'})
+				{
+					my %hash;
+					$hash{ to_json([$_],{canonical=>1,convert_blessed=>1}) }++ foreach @$value;
+					addError->("Array must not contain duplicates.")
+						unless scalar(keys %hash) == scalar(@$value);
+				}
 			}
-			elsif ($schema->{'properties'})
+			elsif ($schema->{'properties'} or $schema->{'additionalProperties'} or $schema->{'patternProperties'})
 			{
-				push @{$self->{errors}}, $self->checkObj($value, $schema->{'properties'}, $path, $schema->{'additionalProperties'}, $_changing);
+				push @{$self->{errors}}, $self->checkObj($value, $path, $schema->{'properties'}, $schema->{'additionalProperties'}, $schema->{'patternProperties'}, $_changing);
 			}
 			if ($schema->{'pattern'} and $self->jsMatchType('string', $value))
 			{
@@ -246,7 +282,8 @@ sub checkProp
 			}
 			if (defined $schema->{'minimum'} and not $self->jsMatchType('number', $value))
 			{
-				if (defined $schema->{'minimumCanEqual'} and not $schema->{'minimumCanEqual'})
+				if ((defined $schema->{'minimumCanEqual'} and not $schema->{'minimumCanEqual'})
+				or  $schema->{'exclusiveMinimum'})
 				{
 					$addError->("must be greater than minimum value '" . $schema->{'minimum'}) . "'"
 						if $value lt $schema->{'minimum'};
@@ -259,7 +296,8 @@ sub checkProp
 			}
 			elsif (defined $schema->{'minimum'})
 			{
-				if (defined $schema->{'minimumCanEqual'} and not $schema->{'minimumCanEqual'})
+				if ((defined $schema->{'minimumCanEqual'} and not $schema->{'minimumCanEqual'})
+				or  $schema->{'exclusiveMinimum'})
 				{
 					$addError->("must be greater than minimum value " . $schema->{'minimum'})
 						unless $value > $schema->{'minimum'};
@@ -272,7 +310,8 @@ sub checkProp
 			}
 			if (defined $schema->{'maximum'} and not $self->jsMatchType('number', $value))
 			{
-				if (defined $schema->{'maximumCanEqual'} and not $schema->{'maximumCanEqual'})
+				if ((defined $schema->{'maximumCanEqual'} and not $schema->{'maximumCanEqual'})
+				or  $schema->{'exclusiveMaximum'})
 				{
 					$addError->("must be less than or equal to maximum value '" . $schema->{'maximum'}) . "'"
 						if $value gt $schema->{'maximum'};
@@ -285,7 +324,8 @@ sub checkProp
 			}
 			elsif (defined $schema->{'maximum'})
 			{
-				if (defined $schema->{'maximumCanEqual'} and not $schema->{'maximumCanEqual'})
+				if ((defined $schema->{'maximumCanEqual'} and not $schema->{'maximumCanEqual'})
+				or  $schema->{'exclusiveMaximum'})
 				{
 					$addError->("must be less than maximum value " . $schema->{'maximum'})
 						unless $value < $schema->{'maximum'};
@@ -321,7 +361,7 @@ sub checkProp
 
 sub checkObj
 {
-	my ($self, $instance, $objTypeDef, $path, $additionalProp, $_changing) = @_;
+	my ($self, $instance, $path, $objTypeDef, $additionalProp, $patternProp, $_changing) = @_;
 	my @errors;
 	
 	my $addError = sub
@@ -350,20 +390,31 @@ sub checkObj
 			}
 		}
 	} # END: if (ref $objTypeDef eq 'HASH')
+	
 	foreach my $i (keys %$instance)
 	{
 		if ($i !~ /^__/
 		and defined $objTypeDef
 		and not defined $objTypeDef->{$i}
-		and not defined $additionalProp)
+		and not defined $additionalProp
+		and not defined $patternProp)
 		{
 			$addError->("The property $i is not defined in the schema and the schema does not allow additional properties");
 		}
+
+		# TOBY: back-compat
 		my $requires = $objTypeDef && $objTypeDef->{$i} && $objTypeDef->{$i}->{'requires'};
 		if (defined $requires and not defined $instance->{$requires})
 		{
 			$addError->("the presence of the property $i requires that $requires also be present");
 		}
+		
+		my $deps = $objTypeDef && $objTypeDef->{$i} && $objTypeDef->{$i}->{'dependencies'};
+		if (defined $deps)
+		{
+			# TODO
+		}
+		
 		my $value = defined $instance->{$i} ? $instance->{$i} : exists $instance->{$i} ? JSON::Schema::Null->new : undef;
 		if (defined $objTypeDef
 		and ref $objTypeDef eq 'HASH'
@@ -371,6 +422,16 @@ sub checkObj
 		{
 			$self->checkProp($value, $additionalProp, $path, $i, $_changing); 
 		}
+		
+		if (defined $patternProp)
+		{
+			while (my ($pattern, $scm) = %$patternProp)
+			{
+				$self->checkProp($value, $scm, $path, $i, $_changing)
+					if $i =~ /$pattern/;
+			}
+		}
+		
 		if(!$_changing and defined $value and ref $value eq 'HASH' and defined $value->{'$schema'})
 		{
 			push @errors, $self->checkProp($value, $value->{'$schema'}, $path, $i, $_changing);
@@ -466,6 +527,9 @@ sub jsGuessType
 
 	return 'boolean'
 		if (ref $value eq 'SCALAR' and $$value==0 and $$value==1);
+	
+	return 'boolean'
+		if ref $value =~ /^JSON::(.*)::Boolean$/;
 	
 	return 'null'
 		if $self->jsIsNull($value);
