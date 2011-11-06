@@ -245,18 +245,18 @@ sub checkProp
 				if ($schema->{'minItems'}
 				and scalar @$value < $schema->{'minItems'})
 				{
-					addError->("There must be a minimum of " . $schema->{'minItems'} . " in the array");
+					$addError->("There must be a minimum of " . $schema->{'minItems'} . " in the array");
 				}
 				if ($schema->{'maxItems'}
 				and scalar @$value > $schema->{'maxItems'})
 				{
-					addError->("There must be a maximum of " . $schema->{'maxItems'} . " in the array");
+					$addError->("There must be a maximum of " . $schema->{'maxItems'} . " in the array");
 				}
 				if ($schema->{'uniqueItems'})
 				{
 					my %hash;
 					$hash{ to_json([$_],{canonical=>1,convert_blessed=>1}) }++ foreach @$value;
-					addError->("Array must not contain duplicates.")
+					$addError->("Array must not contain duplicates.")
 						unless scalar(keys %hash) == scalar(@$value);
 				}
 			}
