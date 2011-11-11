@@ -18,7 +18,7 @@ package JSON::Schema::Helper;
 
 # TODO: {id}, {dependencies}
 
-use 5.008;
+use 5.010;
 use common::sense;
 use constant FALSE => 0;
 use constant TRUE  => 1;
@@ -29,13 +29,14 @@ use JSON::Schema::Null;
 use POSIX qw[modf];
 use Scalar::Util qw[blessed];
 
-our $VERSION = '0.010';
+our $VERSION = '0.011';
 
 sub new
 {
 	my ($class, %args) = @_;
-	$args{'hyper'}  ||= JSON::Hyper->new;
-	$args{'errors'} ||= [];
+	$args{hyper}  //= JSON::Hyper->new;
+	$args{errors} //= [];
+	$args{format} //= {};
 	return bless \%args, $class;
 }
 
@@ -60,6 +61,7 @@ sub validate
 sub checkPropertyChange
 {
 	my ($self, $value, $schema, $property) = @_;
+	$property //= 'property';
 	## Summary:
 	## 		The checkPropertyChange method will check to see if an value can legally be in property with the given schema
 	## 		This is slightly different than the validate method in that it will fail if the schema is readonly and it will
@@ -67,7 +69,7 @@ sub checkPropertyChange
 	## 		The checkPropertyChange method will return the same object type as validate, see JSONSchema.validate for 
 	## 		information.
 	##
-	return $self->_validate($value, $schema, $property||'property');	
+	return $self->_validate($value, $schema, $property);
 }
 
 sub _validate
@@ -78,14 +80,17 @@ sub _validate
 	
 	if ($schema)
 	{
-		$self->checkProp($instance, $schema, '', $_changing || '', $_changing);
+		$self->checkProp($instance, $schema, '', ($_changing // ''), $_changing);
 	}
 	if(!$_changing and defined $instance and ref $instance eq 'HASH' and defined $instance->{'$schema'})
 	{
 		$self->checkProp($instance, $instance->{'$schema'}, '', '', $_changing);
 	}
 	
-	return { valid=>(@{$self->{errors}} ? FALSE : TRUE), errors=> $self->{errors} };
+	return {
+		valid  => (@{$self->{errors}} ? FALSE : TRUE),
+		errors => $self->{errors},
+		};
 }
 
 sub checkType
@@ -147,7 +152,7 @@ sub checkProp
 	my $addError = sub
 	{
 		my ($message) = @_;
-		my $e = { property=>$path, message=>$message };
+		my $e = { property => $path, message => $message };
 		foreach (qw(title description))
 		{
 			$e->{$_} = $schema->{$_}
@@ -269,6 +274,16 @@ sub checkProp
 				my $x = $schema->{'pattern'};
 				$addError->("does not match the regex pattern $x")
 					unless $value =~ /$x/;
+			}
+			if ($schema->{'format'} and 
+			($self->jsMatchType('string', $value) or $self->jsMatchType('number', $value)))
+			{
+				my $format_checker = exists $self->{format}{ $schema->{format} }
+					? $self->{format}{ $schema->{format} }
+					: qr//;
+				
+				$addError->("does not match format ".$schema->{format})
+					unless $value ~~ $format_checker;
 			}
 			if ($schema->{'maxLength'} and $self->jsMatchType('string', $value)
 			and strlen($value) > $schema->{'maxLength'})
@@ -425,7 +440,7 @@ sub checkObj
 		
 		if (defined $patternProp)
 		{
-			while (my ($pattern, $scm) = %$patternProp)
+			while (my ($pattern, $scm) = each %$patternProp)
 			{
 				$self->checkProp($value, $scm, $path, $i, $_changing)
 					if $i =~ /$pattern/;

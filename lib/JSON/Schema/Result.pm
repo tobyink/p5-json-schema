@@ -1,12 +1,12 @@
 package JSON::Schema::Result;
 
-use 5.008;
+use 5.010;
 use common::sense;
 use overload bool => \&valid;
 
 use JSON::Schema::Error;
 
-our $VERSION = '0.010';
+our $VERSION = '0.011';
 
 sub new
 {

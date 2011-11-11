@@ -1,6 +1,6 @@
 package JSON::Schema;
 
-use 5.008;
+use 5.010;
 use common::sense;
 
 use Carp;
@@ -12,13 +12,42 @@ use JSON::Schema::Helper;
 use JSON::Schema::Result;
 use LWP::UserAgent;
 
-our $VERSION = '0.010';
+our $VERSION = '0.011';
+our %FORMATS;
+
+BEGIN {
+	%FORMATS = (
+		'date-time'    => qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/i,
+		'date'         => qr/^\d{4}-\d{2}-\d{2}$/i,
+		'time'         => qr/^\d{2}:\d{2}:\d{2}Z?$/i,
+		'utc-millisec' => qr/^[+-]\d+(\.\d+)?$/,
+		'email'        => qr/\@/,
+		'ip-address'   => sub
+			{
+				if (my @nums = ($_[0] =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/))
+				{
+					return 1 unless grep {$_ > 255} @nums;
+				}
+				return;
+			},
+		'color'        => sub
+			{
+				return 1 if $_[0] =~ /^\#[0-9A-F]{6}$/i;
+				return 1 if $_[0] =~ /^\#[0-9A-F]{3}$/i;
+				return 1 if $_[0] =~ /^(aqua|black|blue|fuchsia|gray|grey|green|lime|maroon|navy|olive|orange|purple|red|silver|teal|white|yellow)$/i;
+				return;
+			},
+		);
+}
 
 sub new
 {
-	my ($class, $schema) = @_;
+	my ($class, $schema, %options) = @_;
+	
 	$schema = from_json($schema) unless ref $schema;
-	return bless {schema=>$schema}, $class;
+	$options{format} //= {};
+	
+	return bless { %options, schema => $schema }, $class;
 }
 
 sub detect
@@ -44,9 +73,9 @@ sub detect
 	# Link: <>; rel="describedby"
 	my $links  = parse_links_to_rdfjson($source);
 	my @schema =
-		map { $class->new( $hyper->get($_->{'value'}) ) }
-		grep { lc $_->{'type'} eq 'uri' }
-		$links->{$url}->{relationship_uri('describedby')};
+		map { $class->new( $hyper->get($_->{value}) ) }
+		grep { lc $_->{type} eq 'uri' }
+		$links->{$url}{relationship_uri('describedby')};
 	
 	# ;profile=
 	push @schema,
@@ -59,8 +88,8 @@ sub detect
 	if ($object)
 	{
 		push @schema,
-			map { $class->new( $hyper->get($_->{'href'}) ) }
-			grep { lc $_->{'rel'} eq 'describedby' or lc $_->{'rel'} eq relationship_uri('describedby') }
+			map { $class->new( $hyper->get($_->{href}) ) }
+			grep { lc $_->{rel} eq 'describedby' or lc $_->{rel} eq relationship_uri('describedby') }
 			$hyper->find_links($object);
 	}
 	return @schema;
@@ -69,7 +98,13 @@ sub detect
 sub schema
 {
 	my ($self) = @_;
-	return $self->{'schema'};
+	return $self->{schema};
+}
+
+sub format
+{
+	my ($self) = @_;
+	return $self->{format};
 }
 
 sub validate
@@ -77,7 +112,7 @@ sub validate
 	my ($self, $object) = @_;
 	$object = from_json($object) unless ref $object;
 	
-	my $helper = JSON::Schema::Helper->new;
+	my $helper = JSON::Schema::Helper->new(format => $self->format);
 	my $result = $helper->validate($object, $self->schema);
 	return JSON::Schema::Result->new($result);
 }
@@ -89,18 +124,18 @@ sub ua
 	
 	if (@_)
 	{
-		my $rv = $self->{'ua'};
-		$self->{'ua'} = shift;
+		my $rv = $self->{ua};
+		$self->{ua} = shift;
 		croak "Set UA to something that is not an LWP::UserAgent!"
-			unless blessed $self->{'ua'} && $self->{'ua'}->isa('LWP::UserAgent');
+			unless blessed $self->{ua} && $self->{ua}->isa('LWP::UserAgent');
 		return $rv;
 	}
-	unless (blessed $self->{'ua'} && $self->{'ua'}->isa('LWP::UserAgent'))
+	unless (blessed $self->{ua} && $self->{ua}->isa('LWP::UserAgent'))
 	{
-		$self->{'ua'} = LWP::UserAgent->new(agent=>sprintf('%s/%s ', __PACKAGE__, $VERSION));
-		$self->{'ua'}->default_header('Accept'=>'application/json, application/schema+json');
+		$self->{ua} = LWP::UserAgent->new(agent => sprintf('%s/%s ', __PACKAGE__, __PACKAGE__->VERSION));
+		$self->{ua}->default_header(Accept => 'application/json, application/schema+json');
 	}
-	return $self->{'ua'};
+	return $self->{ua};
 }
 
 1;
@@ -113,7 +148,7 @@ JSON::Schema - validate JSON against a schema
 
 =head1 SYNOPSIS
 
- my $validator = JSON::Schema->new($schema);
+ my $validator = JSON::Schema->new($schema, %options);
  my $json      = from_json( ... );
  my $result    = $validator->validate($json);
  
@@ -133,7 +168,7 @@ JSON::Schema - validate JSON against a schema
 
 =over 4
 
-=item C<< JSON::Schema->new($schema) >>
+=item C<< JSON::Schema->new($schema, %options) >>
 
 Given a JSON (or equivalent Perl nested hashref/arrayref structure)
 Schema, returns a Perl object capable of checking objects against
@@ -142,6 +177,16 @@ that schema.
 Note that some schemas contain '$ref' properties which act as
 inclusions; this module does not expand those, but the L<JSON::Hyper>
 module can.
+
+The only option currently supported is 'format' which takes a
+hashref of formats (section 5.23 of the current JSON Schema draft)
+such that the keys are the names of the formats, and the values are
+regular expressions or callback functions. %JSON::Schema::FORMATS
+provides a library of useful format checkers, but by default no
+format checkers are used.
+
+ my $s = JSON::Schema->new($schema,
+                           format => \%JSON::Schema::FORMATS);
 
 =item C<< JSON::Schema->detect($url) >>
 
@@ -156,14 +201,23 @@ response headers.
 
 =over 4
 
-=item C<< schema >>
-
-Returns the original schema as a hashref/arrayref structure.
-
 =item C<< validate($object) >>
 
 Validates the object against the schema and returns a
 L<JSON::Schema::Result>.
+
+=item C<< schema >>
+
+Returns the original schema as a hashref/arrayref structure.
+
+=item C<< format >>
+
+Returns the hashref of format checkers.
+
+=item C<< ua >>
+
+Returns the LWP::UserAgent that this schema object has used or would
+use to retrieve content from the web.
 
 =back
 

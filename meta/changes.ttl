@@ -1,5 +1,3 @@
-#############################################################
-
 @prefix :        <http://usefulinc.com/ns/doap#> .
 @prefix dcs:     <http://ontologi.es/doap-changeset#> .
 @prefix dc:      <http://purl.org/dc/terms/> .
@@ -9,27 +7,16 @@
 @prefix toby:    <http://tobyinkster.co.uk/#> .
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 
-#############################################################
-
-<>
-
-	dc:title         "Changes" ;
-	dc:description   "Revision history for Perl extension JSON::Schema."@en ;
-	dc:subject       my:project ;
-	dc:creator       toby:i .
-
-#############################################################
-
+my:project :release my:v_0-001_00 .
 my:v_0-001_00
-
 	a               :Version ;
 	dc:issued       "2010-08-02"^^xsd:date ;
 	:revision       "0.001_00"^^xsd:string ;
 	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.001_00.tar.gz> ;
 	rdfs:comment    "Developer release"@en .
 
+my:project :release my:v_0-001_01 .
 my:v_0-001_01
-
 	a               :Version ;
 	dc:issued       "2010-08-04"^^xsd:date ;
 	:revision       "0.001_01"^^xsd:string ;
@@ -41,8 +28,8 @@ my:v_0-001_01
 		dcs:item   [ rdfs:label "JSON::Schema now calls JSON::Hyper to expand $ref references by itself. This is more efficient as they can be expanded just-in-time, as needed, rather than speculatively."@en ; rdfs:comment "This is a more efficient way of doing things."@en ; a dcs:Addition ]
 		] .
 
+my:project :release my:v_0-010 .
 my:v_0-010
-
 	a               :Version ;
 	dc:issued       "2011-09-27"^^xsd:date ;
 	:revision       "0.010"^^xsd:string ;
@@ -60,35 +47,17 @@ my:v_0-010
 		dcs:item   [ rdfs:label "Split JSON::Schema::Helper and JSON::Schema::Null into separate files."@en ; a dcs:Packaging ] ;
 		] .
 
-#############################################################
-
-my:project
-
-	a               :Project ;
-	:name           "JSON-Schema" ;
-	:shortdesc      "validate JSON against a schema"@en ;
-	:programming-language  "Perl" ;
-	:homepage       <https://metacpan.org/release/JSON-Schema> ;
-	:download-page  <https://metacpan.org/release/JSON-Schema> ;
-	:bug-database   <http://rt.cpan.org/Dist/Display.html?Queue=JSON-Schema> ;
-	:repository     [ a :SVNRepository ; :browse <http://goddamn.co.uk/svn-web/perlmods/browse/JSON-Schema/> ] ;
-	:maintainer     toby:i ;
-	:developer      toby:i ;
-	:documenter     toby:i ;
-	:tester         toby:i ;
-	:created        "2010-07-31"^^xsd:date ;
-	:license        <http://dev.perl.org/licenses/> , <http://opensource.org/licenses/mit-license.php> ;
-	:release        my:v_0-001_00 , my:v_0-001_01 , my:v_0-010 .
-
-#############################################################
-
-toby:i
-
-	a               foaf:Person ;
-	foaf:name       "Toby Inkster" ;
-	foaf:homepage   <http://tobyinkster.co.uk/> ;
-	foaf:page       <https://metacpan.org/author/TOBYINK> ;
-	foaf:mbox       <mailto:tobyink@cpan.org> ;
-	<http://www.w3.org/2002/07/owl#sameAs> <http://purl.org/NET/cpan-uri/person/tobyink> .
-
-#############################################################
+my:project :release my:v_0-011 .
+my:v_0-011
+	a               :Version ;
+	dc:issued       "2011-11-11"^^xsd:date ;
+	:revision       "0.011"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.011.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-010 ;
+		dcs:item   [ rdfs:label "patternProperties fix."@en ; a dcs:Bugfix ; dcs:blame [ foaf:nick "LIEUTAR" ] ] ;
+		dcs:item   [ rdfs:label "addError fix."@en ; a dcs:Bugfix ; dcs:blame [ foaf:name "Markus Lauer" ] ] ;
+		dcs:item   [ rdfs:label "Module::Package::RDF"@en ; a dcs:Packaging ] ;
+		dcs:item   [ rdfs:label "use 5.010"@en ; a dcs:Update ] ;
+		dcs:item   [ rdfs:label "format."@en ; a dcs:Addition ]
+		] .

@@ -1,10 +1,10 @@
 package JSON::Schema::Null;
 
-use 5.008;
+use 5.010;
 use common::sense;
 use overload '""' => sub { return '' };
 
-our $VERSION = '0.010';
+our $VERSION = '0.011';
 
 sub new
 {

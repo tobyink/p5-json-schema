@@ -1,12 +1,12 @@
 package JSON::Schema::Error;
 
-use 5.008;
+use 5.010;
 use common::sense;
 use overload '""' => \&to_string;
 
 use JSON::Path;
 
-our $VERSION = '0.010';
+our $VERSION = '0.011';
 
 sub new
 {
