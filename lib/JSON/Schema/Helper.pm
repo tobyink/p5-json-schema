@@ -411,7 +411,7 @@ sub checkObj
 		if ($i !~ /^__/
 		and defined $objTypeDef
 		and not defined $objTypeDef->{$i}
-		and not defined $additionalProp
+		and (defined $additionalProp and not $additionalProp)
 		and not defined $patternProp)
 		{
 			$addError->("The property $i is not defined in the schema and the schema does not allow additional properties");
