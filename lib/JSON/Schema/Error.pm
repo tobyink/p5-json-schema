@@ -6,7 +6,7 @@ use overload '""' => \&to_string;
 
 use JSON::Path;
 
-our $VERSION = '0.011';
+our $VERSION = '0.012';
 
 sub new
 {

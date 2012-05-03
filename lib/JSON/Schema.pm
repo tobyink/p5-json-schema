@@ -12,7 +12,7 @@ use JSON::Schema::Helper;
 use JSON::Schema::Result;
 use LWP::UserAgent;
 
-our $VERSION = '0.011';
+our $VERSION = '0.012';
 our %FORMATS;
 
 BEGIN {

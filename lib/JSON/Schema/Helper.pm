@@ -30,7 +30,7 @@ use JSON::Schema::Null;
 use POSIX qw[modf];
 use Scalar::Util qw[blessed];
 
-our $VERSION = '0.011';
+our $VERSION = '0.012';
 
 sub new
 {

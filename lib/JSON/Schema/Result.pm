@@ -6,7 +6,7 @@ use overload bool => \&valid;
 
 use JSON::Schema::Error;
 
-our $VERSION = '0.011';
+our $VERSION = '0.012';
 
 sub new
 {

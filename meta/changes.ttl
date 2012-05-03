@@ -5,6 +5,7 @@
 @prefix my:      <http://purl.org/NET/cpan-uri/dist/JSON-Schema/> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix toby:    <http://tobyinkster.co.uk/#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 
 my:project :release my:v_0-001_00 .
@@ -26,7 +27,7 @@ my:v_0-001_01
 		dcs:item   [ rdfs:label "Support for maximumCanEqual and minimumCanEqual, which aren't included in the Javascript version."@en ; a dcs:Addition ] ;
 		dcs:item   [ rdfs:label "Support for divisibleBy."@en ; a dcs:Addition  ] ;
 		dcs:item   [ rdfs:label "JSON::Schema now calls JSON::Hyper to expand $ref references by itself. This is more efficient as they can be expanded just-in-time, as needed, rather than speculatively."@en ; rdfs:comment "This is a more efficient way of doing things."@en ; a dcs:Addition ]
-		] .
+	] .
 
 my:project :release my:v_0-010 .
 my:v_0-010
@@ -45,7 +46,7 @@ my:v_0-010
 		dcs:item   [ rdfs:label "required."@en ; a dcs:Addition ] ;
 		dcs:item   [ rdfs:label "exclusiveMaximum and exclusiveMinimum."@en ; a dcs:Addition ] ;
 		dcs:item   [ rdfs:label "Split JSON::Schema::Helper and JSON::Schema::Null into separate files."@en ; a dcs:Packaging ] ;
-		] .
+	] .
 
 my:project :release my:v_0-011 .
 my:v_0-011
@@ -60,4 +61,20 @@ my:v_0-011
 		dcs:item   [ rdfs:label "Module::Package::RDF"@en ; a dcs:Packaging ] ;
 		dcs:item   [ rdfs:label "use 5.010"@en ; a dcs:Update ] ;
 		dcs:item   [ rdfs:label "format."@en ; a dcs:Addition ]
-		] .
+	] .
+
+my:project :release my:v_0-012 .
+my:v_0-012
+	a               :Version ;
+	dc:issued       "2012-05-03"^^xsd:date ;
+	:revision       "0.012"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.012.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-011 ;
+		dcs:item [
+			a dcs:Bugfix;
+			rdfs:label "Fixes for 'additionalProperties' being false or non-existant."@en;
+			dcs:fixes <http://purl.org/NET/cpan-uri/rt/ticket/76892>, <http://purl.org/NET/cpan-uri/rt/ticket/76944>;
+			dcs:thanks [foaf:name "Piotr Piatkowski"], [foaf:mbox <mailto:sdevoid@gmail.com>];
+		]
+	] .
