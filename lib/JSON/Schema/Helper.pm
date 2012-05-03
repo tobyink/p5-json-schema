@@ -20,8 +20,9 @@ package JSON::Schema::Helper;
 
 use 5.010;
 use common::sense;
-use constant FALSE => 0;
-use constant TRUE  => 1;
+use constant FALSE => !1;
+use constant TRUE  => !!1;
+no autovivification;
 
 use JSON qw[-convert_blessed_universally];
 use JSON::Hyper;
@@ -175,7 +176,7 @@ sub checkProp
 		return undef;
 	}
 	
-	$self->{'hyper'}->process_includes($schema, $self->{'base'});
+	eval { $self->{'hyper'}->process_includes($schema, $self->{'base'}) };
 	
 	if ($_changing and $schema->{'readonly'})
 	{
@@ -198,16 +199,18 @@ sub checkProp
 	else
 	{
 		push @{$self->{errors}}, $self->checkType($schema->{'type'}, $value, $path, $_changing, $schema);
+		
 		if (defined $schema->{'disallow'}
 		and !$self->checkType($schema->{'disallow'}, $value, $path, $_changing))
 		{
 			$addError->(" disallowed value was matched");
 		}
+		
 		if (!$self->jsIsNull($value))
 		{
 			if (ref $value eq 'ARRAY')
 			{
-				my $items            = $schema->{items};
+				my $items = $schema->{items};
 				
 				if (ref $items eq 'ARRAY')
 				{ # check each item in $schema->{items} vs corresponding array value
@@ -265,10 +268,14 @@ sub checkProp
 						unless scalar(keys %hash) == scalar(@$value);
 				}
 			}
-			elsif ($schema->{'properties'} or $schema->{'additionalProperties'} or $schema->{'patternProperties'})
+			elsif (defined $schema->{'properties'}
+			or     defined $schema->{'additionalProperties'}
+			or     defined $schema->{'patternProperties'}
+			or     $schema->{'type'} eq 'object')
 			{
 				push @{$self->{errors}}, $self->checkObj($value, $path, $schema->{'properties'}, $schema->{'additionalProperties'}, $schema->{'patternProperties'}, $_changing);
 			}
+			
 			if ($schema->{'pattern'} and $self->jsMatchType('string', $value))
 			{
 				my $x = $schema->{'pattern'};
@@ -386,7 +393,7 @@ sub checkObj
 		push @{$self->{errors}}, $e;
 	};
 	
-	$self->{'hyper'}->process_includes($objTypeDef, $self->{'base'});
+	eval { $self->{'hyper'}->process_includes($objTypeDef, $self->{'base'}) };
 	
 	if (ref $objTypeDef eq 'HASH')
 	{
@@ -408,11 +415,13 @@ sub checkObj
 	
 	foreach my $i (keys %$instance)
 	{
-		if ($i !~ /^__/
-		and defined $objTypeDef
-		and not defined $objTypeDef->{$i}
-		and (defined $additionalProp and not $additionalProp)
-		and not defined $patternProp)
+		my $prop_is_hidden              = ($i =~ /^__/);
+		my $prop_is_explicitly_allowed  = (defined $objTypeDef and defined $objTypeDef->{$i});
+		my $prop_is_implicitly_allowed  = (!!$additionalProp
+		                                or !!$patternProp
+		                                or not defined $additionalProp);
+		
+		unless ($prop_is_hidden or $prop_is_explicitly_allowed or $prop_is_implicitly_allowed)
 		{
 			$addError->("The property $i is not defined in the schema and the schema does not allow additional properties");
 		}
