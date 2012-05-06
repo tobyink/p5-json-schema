@@ -21,7 +21,7 @@ my:project
 	:documenter     toby:i ;
 	:tester         toby:i ;
 	:created        "2010-07-31"^^xsd:date ;
-	:license        <http://dev.perl.org/licenses/> , <http://opensource.org/licenses/mit-license.php> ;
+	:license        <http://dev.perl.org/licenses/> , <http://www.opensource.org/licenses/mit-license.php> ;
 	:category
 		[ rdfs:label "JSON"@en ] ,
 		[ rdfs:label "Schema"@en ] ,

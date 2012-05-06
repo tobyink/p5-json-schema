@@ -8,7 +8,7 @@
 	:readme_from _:main ;
 	:test_requires "Test::More 0.94" ;
 	:requires
-		"autovification 0",
+		"autovivification 0",
 		"Carp 1.00" ,
 		"common::sense" ,
 		"HTTP::Link::Parser 0.100" ,
