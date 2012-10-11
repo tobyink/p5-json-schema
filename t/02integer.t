@@ -40,6 +40,8 @@ subtest 'maximum minimum integer' => sub {
     $result = $schema->validate($data);
     ok !$result, 'too big'
         or map { diag "reason: $_" } $result->errors;
+
+    done_testing;
 };
 
 done_testing;
