@@ -19,7 +19,7 @@ package JSON::Schema::Helper;
 # TODO: {id}, {dependencies}
 
 use 5.010;
-use strict;
+use strict qw( vars subs );
 use constant FALSE => !1;
 use constant TRUE  => !!1;
 no autovivification;
