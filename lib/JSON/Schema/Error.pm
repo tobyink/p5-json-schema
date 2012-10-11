@@ -1,7 +1,7 @@
 package JSON::Schema::Error;
 
 use 5.010;
-use common::sense;
+use strict;
 use overload '""' => \&to_string;
 
 use JSON::Path;

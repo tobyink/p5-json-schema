@@ -1,7 +1,7 @@
 package JSON::Schema;
 
 use 5.010;
-use common::sense;
+use strict;
 
 use Carp;
 use HTTP::Link::Parser qw[parse_links_to_rdfjson relationship_uri];

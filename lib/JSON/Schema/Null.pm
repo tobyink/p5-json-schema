@@ -1,7 +1,7 @@
 package JSON::Schema::Null;
 
 use 5.010;
-use common::sense;
+use strict;
 use overload '""' => sub { return '' };
 
 our $VERSION = '0.012';

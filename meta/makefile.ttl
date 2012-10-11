@@ -9,15 +9,11 @@
 	:test_requires "Test::More 0.94" ;
 	:requires
 		"autovivification 0",
-		"Carp 1.00" ,
-		"common::sense" ,
 		"HTTP::Link::Parser 0.100" ,
 		"JSON 2.00" ,
 		"JSON::Hyper 0" ,
 		"JSON::Path 0" ,
-		"LWP::UserAgent 0" ,
-		"POSIX 0" ,
-		"Scalar::Util 0" .
+		"LWP::UserAgent 0" .
 
 _:main <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName> "lib/JSON/Schema.pm" .
 

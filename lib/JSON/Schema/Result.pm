@@ -1,7 +1,7 @@
 package JSON::Schema::Result;
 
 use 5.010;
-use common::sense;
+use strict;
 use overload bool => \&valid;
 
 use JSON::Schema::Error;
