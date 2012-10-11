@@ -118,17 +118,12 @@ sub checkType
 #		and ($type eq 'null' ? $self->jsIsNull($value) : $self->jsMatchType($type, $value))
 #		and !(ref $value eq 'ARRAY' and $type eq 'array')
 #		and !($type eq 'integer' and $value % 1 == 0))
-		if (!$self->jsMatchType($type, $value))
-		{
-			$addError->($self->jsGuessType($value)." value found, but a $type is required");
-			return @E;
-		}
 		if (ref $type eq 'ARRAY')
 		{
 			my @unionErrors;
 			TYPE: foreach my $t (@$type)
 			{
-				@unionErrors = @{ $self->checkType($t, $value, $path, $_changing, $schema) };
+				@unionErrors = $self->checkType($t, $value, $path, $_changing, $schema);
 				last unless @unionErrors;
 			}
 			return @unionErrors if @unionErrors;
@@ -138,6 +133,11 @@ sub checkType
 			local $self->{errors} = [];
 			$self->checkProp($value, $type, $path, undef, $_changing);
 			return @{ $self->{errors} };
+		}
+		elsif (!$self->jsMatchType($type, $value))
+		{
+			$addError->($self->jsGuessType($value)." value found, but a $type is required");
+			return @E;
 		}
 	}
 	return;
@@ -494,11 +494,12 @@ sub jsMatchType
 	
 	if (lc $type eq 'boolean')
 	{
-		return TRUE if (ref $value eq 'SCALAR' and $$value==0 || $$value==1);
-		return TRUE if ($value eq TRUE);
-		return TRUE if ($value eq FALSE);
-		return TRUE if (ref $value eq 'JSON::PP::Boolean');
-		return TRUE if (ref $value eq 'JSON::XS::Boolean');
+		return FALSE if (ref $value eq 'JSON::Schema::Null');
+		return TRUE  if (ref $value eq 'SCALAR' and $$value==0 || $$value==1);
+		return TRUE  if ($value eq TRUE);
+		return TRUE  if ($value eq FALSE);
+		return TRUE  if (ref $value eq 'JSON::PP::Boolean');
+		return TRUE  if (ref $value eq 'JSON::XS::Boolean');
 		return FALSE;
 	}
 
