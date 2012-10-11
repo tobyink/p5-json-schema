@@ -278,7 +278,7 @@ L<http://code.google.com/p/jsonschema/>.
 
 Copyright 2007-2009 Kris Zyp.
 
-Copyright 2010-2011 Toby Inkster.
+Copyright 2010-2012 Toby Inkster.
 
 This module is tri-licensed. It is available under the X11 (a.k.a. MIT)
 licence; you can also redistribute it and/or modify it under the same
