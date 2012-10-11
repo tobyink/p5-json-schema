@@ -4,7 +4,8 @@ use 5.010;
 use strict;
 use overload '""' => sub { return '' };
 
-our $VERSION = '0.012';
+our $AUTHORITY = 'cpan:TOBYINK';
+our $VERSION   = '0.013';
 
 sub new
 {

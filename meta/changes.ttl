@@ -78,3 +78,25 @@ my:v_0-012
 			dcs:thanks [foaf:name "Piotr Piatkowski"], [foaf:mbox <mailto:sdevoid@gmail.com>];
 		]
 	] .
+
+my:project :release my:v_0-013 .
+my:v_0-013
+	a               :Version ;
+	dc:issued       "2012-10-11"^^xsd:date ;
+	:revision       "0.013"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.013.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-012 ;
+		dcs:item [ rdfs:label "Drop common::sense dependency." ];
+		dcs:item [
+			a dcs:Bugfix;
+			rdfs:label "Fix for union types."@en;
+			dcs:fixes <https://rt.cpan.org/Ticket/Display.html?id=80083>;
+			dcs:thanks [ foaf:nick "DAVIDIAM" ];
+		];
+		dcs:item [
+			a dcs:Bugfix;
+			rdfs:label "Patched 02integer.t."@en;
+			dcs:thanks [ foaf:nick "DAVIDIAM" ];
+		];
+	] .
