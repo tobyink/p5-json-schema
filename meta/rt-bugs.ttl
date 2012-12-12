@@ -8,39 +8,72 @@
 @prefix status: <http://purl.org/NET/cpan-uri/rt/status/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-_:r1336334463r0 a foaf:Agent ;
+_:r1355349776r36 a foaf:Agent ;
 	foaf:mbox <mailto:LIEUTAR@cpan.org> .
-_:r1336334463r1 a foaf:Agent ;
+_:r1355349776r37 a foaf:Agent ;
 	foaf:nick "TOBYINK" .
-_:r1336334463r2 a foaf:Agent ;
+_:r1355349776r38 a foaf:Agent ;
 	foaf:mbox <mailto:pp@idea7.pl> .
-_:r1336334463r3 a foaf:Agent ;
+_:r1355349776r39 a foaf:Agent ;
 	foaf:mbox <mailto:sdevoid@gmail.com> .
-<http://purl.org/NET/cpan-uri/dist/JSON-Schema/project> dbug:issue <http://purl.org/NET/cpan-uri/rt/ticket/72303>, <http://purl.org/NET/cpan-uri/rt/ticket/76892>, <http://purl.org/NET/cpan-uri/rt/ticket/76944> .
-<http://purl.org/NET/cpan-uri/rt/ticket/72303> dbug:assignee _:r1336334463r1 ;
+_:r1355349776r40 a foaf:Agent ;
+	foaf:mbox <mailto:DAVIDIAM@cpan.org> .
+_:r1355349776r41 a foaf:Agent ;
+	foaf:mbox <mailto:jabbas@jabbas.eu> .
+_:r1355349776r42 a foaf:Agent ;
+	foaf:mbox <mailto:gszpetkowski@gmail.com> .
+<http://purl.org/NET/cpan-uri/dist/JSON-Schema/project> dbug:issue <http://purl.org/NET/cpan-uri/rt/ticket/72303>, <http://purl.org/NET/cpan-uri/rt/ticket/76892>, <http://purl.org/NET/cpan-uri/rt/ticket/76944>, <http://purl.org/NET/cpan-uri/rt/ticket/80083>, <http://purl.org/NET/cpan-uri/rt/ticket/81736>, <http://purl.org/NET/cpan-uri/rt/ticket/81867> .
+<http://purl.org/NET/cpan-uri/rt/ticket/72303> dbug:assignee _:r1355349776r37 ;
 	dbug:id "72303"^^xsd:string ;
 	dbug:page <https://rt.cpan.org/Ticket/Display.html?id=72303> ;
-	dbug:reporter _:r1336334463r0 ;
+	dbug:reporter _:r1355349776r36 ;
 	dbug:status status:resolved ;
 	dc:created "2011-11-09T05:29:37"^^xsd:dateTime ;
 	dc:modified "2011-11-26T10:48:58"^^xsd:dateTime ;
 	a dbug:Issue ;
 	rdfs:label "Infinite loop when using \"patternProperties\"." .
-<http://purl.org/NET/cpan-uri/rt/ticket/76892> dbug:assignee _:r1336334463r1 ;
+<http://purl.org/NET/cpan-uri/rt/ticket/76892> dbug:assignee _:r1355349776r37 ;
 	dbug:id "76892"^^xsd:string ;
 	dbug:page <https://rt.cpan.org/Ticket/Display.html?id=76892> ;
-	dbug:reporter _:r1336334463r2 ;
+	dbug:reporter _:r1355349776r38 ;
 	dbug:status status:patched ;
 	dc:created "2012-04-30T10:06:34"^^xsd:dateTime ;
 	dc:modified "2012-05-03T23:01:40"^^xsd:dateTime ;
 	a dbug:Issue ;
 	rdfs:label "Improper default value of additionalProperties" .
-<http://purl.org/NET/cpan-uri/rt/ticket/76944> dbug:assignee _:r1336334463r1 ;
+<http://purl.org/NET/cpan-uri/rt/ticket/76944> dbug:assignee _:r1355349776r37 ;
 	dbug:id "76944"^^xsd:string ;
 	dbug:page <https://rt.cpan.org/Ticket/Display.html?id=76944> ;
-	dbug:reporter _:r1336334463r3 ;
+	dbug:reporter _:r1355349776r39 ;
 	dbug:status status:patched ;
 	dc:created "2012-05-02T18:50:18"^^xsd:dateTime ;
 	dc:modified "2012-05-03T23:01:09"^^xsd:dateTime ;
 	a dbug:Issue ;
 	rdfs:label "AdditionalProperties not working" .
+<http://purl.org/NET/cpan-uri/rt/ticket/80083> dbug:assignee _:r1355349776r37 ;
+	dbug:id "80083"^^xsd:string ;
+	dbug:page <https://rt.cpan.org/Ticket/Display.html?id=80083> ;
+	dbug:reporter _:r1355349776r40 ;
+	dbug:status status:resolved ;
+	dc:created "2012-10-09T22:21:51"^^xsd:dateTime ;
+	dc:modified "2012-10-11T22:39:43"^^xsd:dateTime ;
+	a dbug:Issue ;
+	rdfs:label "Union data type validation" .
+<http://purl.org/NET/cpan-uri/rt/ticket/81736> dbug:assignee _:r1355349776r37 ;
+	dbug:id "81736"^^xsd:string ;
+	dbug:page <https://rt.cpan.org/Ticket/Display.html?id=81736> ;
+	dbug:reporter _:r1355349776r41 ;
+	dbug:status status:open ;
+	dc:created "2012-12-06T08:35:57"^^xsd:dateTime ;
+	dc:modified "2012-12-06T17:49:01"^^xsd:dateTime ;
+	a dbug:Issue ;
+	rdfs:label "JSON::Schema string length validation" .
+<http://purl.org/NET/cpan-uri/rt/ticket/81867> dbug:assignee _:r1355349776r37 ;
+	dbug:id "81867"^^xsd:string ;
+	dbug:page <https://rt.cpan.org/Ticket/Display.html?id=81867> ;
+	dbug:reporter _:r1355349776r42 ;
+	dbug:status status:open ;
+	dc:created "2012-12-10T16:38:09"^^xsd:dateTime ;
+	dc:modified "2012-12-12T17:28:41"^^xsd:dateTime ;
+	a dbug:Issue ;
+	rdfs:label "Nested array in enum is compared by reference" .

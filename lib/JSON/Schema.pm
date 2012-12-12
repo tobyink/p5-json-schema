@@ -13,7 +13,7 @@ use JSON::Schema::Result;
 use LWP::UserAgent;
 
 our $AUTHORITY = 'cpan:TOBYINK';
-our $VERSION   = '0.013';
+our $VERSION   = '0.014';
 our %FORMATS;
 
 BEGIN {

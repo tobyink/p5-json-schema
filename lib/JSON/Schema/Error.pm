@@ -7,7 +7,7 @@ use overload '""' => \&to_string;
 use JSON::Path;
 
 our $AUTHORITY = 'cpan:TOBYINK';
-our $VERSION   = '0.013';
+our $VERSION   = '0.014';
 
 sub new
 {

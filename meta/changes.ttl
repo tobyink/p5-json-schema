@@ -100,3 +100,19 @@ my:v_0-013
 			dcs:thanks [ foaf:nick "DAVIDIAM" ];
 		];
 	] .
+
+my:project :release my:v_0-014 .
+my:v_0-014
+	a               :Version ;
+	dc:issued       "2012-12-12"^^xsd:date ;
+	:revision       "0.014"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.014.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-013 ;
+		dcs:item [
+			a dcs:Bugfix;
+			rdfs:label "Fix for string lengths."@en;
+			dcs:fixes <https://rt.cpan.org/Ticket/Display.html?id=81736>;
+			dcs:thanks [ foaf:mbox <mailto:jabbas@jabbas.eu> ];
+		];
+	] .
