@@ -1,3 +1,25 @@
+=head1 PURPOSE
+
+Test that minLength and maxLength work.
+
+=head1 SEE ALSO
+
+L<https://rt.cpan.org/Ticket/Display.html?id=81736>.
+
+=head1 AUTHOR
+
+Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
+
+=head1 COPYRIGHT AND LICENCE
+
+Copyright 2012 Toby Inkster.
+
+This file is tri-licensed. It is available under the X11 (a.k.a. MIT)
+licence; you can also redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut
+
 use strict;
 use warnings;
 use Test::More;

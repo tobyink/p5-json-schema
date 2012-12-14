@@ -1,3 +1,22 @@
+=head1 PURPOSE
+
+Test that the C<format> option can be used to define custom validation
+criteria.
+
+=head1 AUTHOR
+
+Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
+
+=head1 COPYRIGHT AND LICENCE
+
+Copyright 2011-2012 Toby Inkster.
+
+This file is tri-licensed. It is available under the X11 (a.k.a. MIT)
+licence; you can also redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut
+
 use Test::More tests => 4;
 use strict;
 use warnings;
@@ -8,14 +27,15 @@ my $schema1 = JSON::Schema->new(
 		type => 'object',
 		properties => {
 			mydate => { format => 'date-time' }
-			},
 		},
+	},
 	format => {
-		'date-time'  => sub {
+		'date-time' => sub {
 			ok(1, 'callback fired');
 			$_[0] =~ /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/i;
-			}
-		});
+		}
+	}
+);
 
 my $result;
 

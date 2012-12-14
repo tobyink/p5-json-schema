@@ -1,3 +1,9 @@
+=head1 PURPOSE
+
+Testing required versus optional properties.
+
+=cut
+
 use Test::More;
 use strict;
 use warnings;

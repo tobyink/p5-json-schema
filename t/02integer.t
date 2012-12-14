@@ -1,3 +1,9 @@
+=head1 PURPOSE
+
+Various tests validating integers - mostly maxima and minima.
+
+=cut
+
 use Test::More;
 use strict;
 use warnings;
