@@ -20,7 +20,7 @@ handles it with ease...
    nickname  => 'TOBYINK',
    email     => { value => 'tobyink@cpan.org' },
    adr       => { countryName => 'England', region => 'East Sussex' },
-   });
+ });
  
  # Now we create our JSON Schema validator:
  my $card_schema = get('http://json-schema.org/card'); 
@@ -60,8 +60,8 @@ JSON::Schema has uses beyond JSON!
      locale     => { type=>['DateTime::Locale','string'] },
      time_zone  => { type=>['DateTime::TimeZone', 'string'] },
      formatter  => { type=>'any' },
-     }
-   };
+   }
+ };
  my $validator = JSON::Schema->new($datetime_new_schema);
  
  my %params = get_user_input();

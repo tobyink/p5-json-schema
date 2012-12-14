@@ -264,7 +264,7 @@ sub checkProp
 				if ($schema->{'uniqueItems'})
 				{
 					my %hash;
-					$hash{ to_json([$_],{canonical=>1,convert_blessed=>1}) }++ foreach @$value;
+					$hash{ to_json([$_],{canonical=>1,convert_blessed=>1}) }++ for @$value;
 					$addError->("Array must not contain duplicates.")
 						unless scalar(keys %hash) == scalar(@$value);
 				}
@@ -361,8 +361,11 @@ sub checkProp
 			}
 			if ($schema->{'enum'})
 			{
+				my %enum;
+				$enum{ to_json([$_],{canonical=>1,convert_blessed=>1}) }++ for @{ $schema->{'enum'} };
+				my $this_value = to_json([$value],{canonical=>1,convert_blessed=>1});
 				$addError->("does not have a value in the enumeration {" . (join ",", @{ $schema->{'enum'} }) . '}')
-					unless grep { $value eq $_ } @{ $schema->{'enum'} };
+					unless exists $enum{$this_value};
 			}
 			if ($schema->{'divisibleBy'} and $self->jsMatchType('number', $value))
 			{
