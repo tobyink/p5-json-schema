@@ -5,7 +5,7 @@ use strict;
 use overload '""' => sub { return '' };
 
 our $AUTHORITY = 'cpan:TOBYINK';
-our $VERSION   = '0.014';
+our $VERSION   = '0.015';
 
 sub new
 {

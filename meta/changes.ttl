@@ -116,3 +116,23 @@ my:v_0-014
 			dcs:thanks [ foaf:mbox <mailto:jabbas@jabbas.eu> ];
 		];
 	] .
+
+my:project :release my:v_0-015 .
+my:v_0-015
+	a               :Version ;
+	dc:issued       "2012-12-15"^^xsd:date ;
+	:revision       "0.015"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/JSON-Schema-0.015.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-014 ;
+		dcs:item [
+			a dcs:Bugfix;
+			rdfs:label "enum assumed that all enumerated values would be non-references; this assumption was incorrect. Reference values are now allowed in an enumeration."@en;
+			dcs:fixes <https://rt.cpan.org/Ticket/Display.html?id=81867>;
+			dcs:thanks [ foaf:mbox <mailto:gszpetkowski@gmail.com> ];
+		];
+		dcs:item [
+			a dcs:Documentation;
+			rdfs:label "Document test suite."@en;
+		];
+	] .
