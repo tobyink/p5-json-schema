@@ -289,7 +289,6 @@ sub checkProp
 				my $format_checker = exists $self->{format}{ $schema->{format} }
 					? $self->{format}{ $schema->{format} }
 					: qr//;
-				
 				$addError->("does not match format ".$schema->{format})
 					unless $value ~~ $format_checker;
 			}
@@ -308,12 +307,12 @@ sub checkProp
 				if ((defined $schema->{'minimumCanEqual'} and not $schema->{'minimumCanEqual'})
 				or  $schema->{'exclusiveMinimum'})
 				{
-					$addError->("must be greater than minimum value '" . $schema->{'minimum'}) . "'"
+					$addError->("must be greater than minimum value '" . $schema->{'minimum'} . "'")
 						if $value lt $schema->{'minimum'};
 				}
 				else
 				{
-					$addError->("must be greater than or equal to minimum value '" . $schema->{'minimum'}) . "'"
+					$addError->("must be greater than or equal to minimum value '" . $schema->{'minimum'} . "'")
 						if $value le $schema->{'minimum'};
 				}
 			}
@@ -336,12 +335,12 @@ sub checkProp
 				if ((defined $schema->{'maximumCanEqual'} and not $schema->{'maximumCanEqual'})
 				or  $schema->{'exclusiveMaximum'})
 				{
-					$addError->("must be less than or equal to maximum value '" . $schema->{'maximum'}) . "'"
+					$addError->("must be less than or equal to maximum value '" . $schema->{'maximum'} . "'")
 						if $value gt $schema->{'maximum'};
 				}
 				else
 				{
-					$addError->("must be less than or equal to maximum value '" . $schema->{'maximum'}) . "'"
+					$addError->("must be less than or equal to maximum value '" . $schema->{'maximum'} . "'")
 						if $value ge $schema->{'maximum'};
 				}
 			}
