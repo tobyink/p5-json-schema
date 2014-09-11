@@ -163,6 +163,17 @@ JSON::Schema - validate JSON against a schema
    print " - $_\n" foreach $result->errors;
  }
 
+=head1 STATUS
+
+This module offers good support for JSON Schema as described by draft
+specifications circa 2012.
+
+However, since then the JSON Schema draft specifications have changed
+significantly. It is planned for this module to be updated to support
+the changes, however this work will not be undertaken until the JSON
+Schema specifications become more stable. (Being published as an IETF
+RFC will be seen as sufficient stability.)
+
 =head1 DESCRIPTION
 
 =head2 Constructors
