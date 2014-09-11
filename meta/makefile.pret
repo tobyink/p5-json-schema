@@ -7,5 +7,6 @@
 	deps:runtime-requirement         [ deps:on "JSON::Hyper 0"^^deps:CpanId ];
 	deps:runtime-requirement         [ deps:on "JSON::Path 0"^^deps:CpanId ];
 	deps:runtime-requirement         [ deps:on "LWP::UserAgent 0"^^deps:CpanId ];
+	deps:runtime-requirement         [ deps:on "match::simple"^^deps:CpanId ];
 	deps:test-requirement            [ deps:on "Test::More 0.94"^^deps:CpanId ].
 

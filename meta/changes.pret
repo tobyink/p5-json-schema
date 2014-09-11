@@ -142,5 +142,6 @@ my:v_0-015
 	changeset [
 		item "Switch to Dist::Inkt."^^Packaging;
 		item "Document the status of this module."^^Documentation;
+		item "Stop using smartmatch."^^Update;
 	].
 

@@ -29,6 +29,7 @@ use JSON::Hyper;
 use JSON::Schema::Null;
 use POSIX qw[modf];
 use Scalar::Util qw[blessed];
+use match::simple qw[match];
 
 our $AUTHORITY = 'cpan:TOBYINK';
 our $VERSION   = '0.016';
@@ -291,7 +292,7 @@ sub checkProp
 					: qr//;
 				
 				$addError->("does not match format ".$schema->{format})
-					unless $value ~~ $format_checker;
+					unless match($value, $format_checker);
 			}
 			if ($schema->{'maxLength'} and $self->jsMatchType('string', $value)
 			and length($value) > $schema->{'maxLength'})
