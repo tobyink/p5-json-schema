@@ -1,0 +1,11 @@
+@prefix deps:  <http://ontologi.es/doap-deps#> .
+
+<http://purl.org/NET/cpan-uri/dist/JSON-Schema/project>
+	deps:runtime-requirement         [ deps:on "autovivification 0"^^deps:CpanId ];
+	deps:runtime-requirement         [ deps:on "HTTP::Link::Parser 0.100"^^deps:CpanId ];
+	deps:runtime-requirement         [ deps:on "JSON 2.00"^^deps:CpanId ];
+	deps:runtime-requirement         [ deps:on "JSON::Hyper 0"^^deps:CpanId ];
+	deps:runtime-requirement         [ deps:on "JSON::Path 0"^^deps:CpanId ];
+	deps:runtime-requirement         [ deps:on "LWP::UserAgent 0"^^deps:CpanId ];
+	deps:test-requirement            [ deps:on "Test::More 0.94"^^deps:CpanId ].
+
