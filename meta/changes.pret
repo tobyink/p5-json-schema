@@ -136,3 +136,10 @@ my:v_0-015
 			rdfs:label "Document test suite."@en;
 		];
 	] .
+
+`JSON-Schema 0.016 cpan:TOBYINK`
+	issued    2014-09-11;
+	changeset [
+		item "Switch to Dist::Inkt."^^Packaging;
+	].
+
