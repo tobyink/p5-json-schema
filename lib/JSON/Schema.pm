@@ -22,7 +22,7 @@ BEGIN {
 		'date'         => qr/^\d{4}-\d{2}-\d{2}$/i,
 		'time'         => qr/^\d{2}:\d{2}:\d{2}Z?$/i,
 		'utc-millisec' => qr/^[+-]\d+(\.\d+)?$/,
-		'email'        => qr/\@/,
+		'email'        => qr/^\S+@\S+.\S+$/,
 		'ip-address'   => sub
 			{
 				if (my @nums = ($_[0] =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/))
